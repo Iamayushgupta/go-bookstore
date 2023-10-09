@@ -55,12 +55,19 @@ func GetBookById(ID int64) (*Book, *gorm.DB) {
 
 // DeleteBook deletes a book by its ID from the database and returns the deleted book.
 func DeleteBook(ID int64) *Book {
-	var book Book
-	result := db.Where("ID=?", ID).Delete(&book)
+	book, _ := GetBookById(ID)
+	if book == nil {
+		log.Printf("Book with ID: %d not found.", ID)
+		return nil
+	}
+
+	// Delete the fetched book from the database
+	result := db.Delete(&book)
 	if result.RowsAffected == 0 {
 		log.Printf("Book with ID: %d not found.", ID)
 		return nil
 	}
+
 	log.Printf("Deleted book with ID: %d", ID)
-	return &book
+	return book
 }
